@@ -6,7 +6,7 @@ import FormHelperText from '@material-ui/core/FormHelperText'
 import Button from '@material-ui/core/Button'
 
 const Form = () => {
-  const [errorText, setErrorText] = useState({
+  const [formErrors, setFormErrors] = useState({
     name: '',
     size: '',
     type: '',
@@ -16,21 +16,43 @@ const Form = () => {
     e.preventDefault()
     const {name, size, type} = e.target.elements
     if(!name.value){
-      setErrorText((prevProps)=>({...prevProps, name:' the name is required'}))
+      setFormErrors((prevProps)=>({...prevProps, name:'The name is required'}))
     }
     if(!size.value){
-      setErrorText((prevProps)=>({...prevProps, size:' the size is required'}))
+      setFormErrors((prevProps)=>({...prevProps, size:'The size is required'}))
     }
     if(!type.value){
-      setErrorText((prevProps)=>({...prevProps, type:' the type is required'}))
+      setFormErrors((prevProps)=>({...prevProps, type:'The type is required'}))
     }
   }
+
+  const handleBlur = e => {
+    const {name, value} = e.target
+
+    setFormErrors({
+      ...formErrors,
+      [name]: value.length ? '' : `The ${name} is required`,
+    })
+  }
+
   return (
     <>
       <h1>Create Form</h1>
       <form onSubmit={handleSubmit}  noValidate autoComplete="off">
-        <TextField  label="name" id="name" helperText={errorText.name}/>
-        <TextField  label="size" id="size" helperText={errorText.size}/>
+        <TextField
+          label="name"
+          id="name"
+          name="name"
+          helperText={formErrors.name}
+          onBlur={handleBlur}
+        />
+        <TextField
+          label="size"
+          id="size"
+          name="size"
+          helperText={formErrors.size}
+          onBlur={handleBlur}
+        />
         <InputLabel htmlFor="type">Type</InputLabel>
         <Select
           native
@@ -44,8 +66,8 @@ const Form = () => {
           <option value="furniture">furniture</option>
           <option value="clothing">clothing</option>
         </Select>
-        {errorText.type.length &&
-        <FormHelperText>{errorText.type}</FormHelperText>
+        {formErrors.type.length &&
+        <FormHelperText>{formErrors.type}</FormHelperText>
         }
         <Button type="submit">Submit</Button>
       </form>
