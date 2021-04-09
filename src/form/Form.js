@@ -6,14 +6,16 @@ import FormHelperText from '@material-ui/core/FormHelperText'
 import Button from '@material-ui/core/Button'
 
 const Form = () => {
+  const [isSaving, setIsSaving] = useState(false)
   const [formErrors, setFormErrors] = useState({
     name: '',
     size: '',
     type: '',
   })
 
-  const handleSubmit = e =>{
+  const handleSubmit = async e =>{
     e.preventDefault()
+    setIsSaving(true)
     const {name, size, type} = e.target.elements
     if(!name.value){
       setFormErrors((prevProps)=>({...prevProps, name:'The name is required'}))
@@ -24,6 +26,12 @@ const Form = () => {
     if(!type.value){
       setFormErrors((prevProps)=>({...prevProps, type:'The type is required'}))
     }
+
+    await fetch('/products', {
+      method: 'POST',
+      body: JSON.stringify({})
+    })
+    setIsSaving(false)
   }
 
   const handleBlur = e => {
@@ -69,7 +77,7 @@ const Form = () => {
         {formErrors.type.length &&
         <FormHelperText>{formErrors.type}</FormHelperText>
         }
-        <Button type="submit">Submit</Button>
+        <Button disabled={isSaving} aria-disabled={isSaving} type="submit">Submit</Button>
       </form>
     </>
   )
