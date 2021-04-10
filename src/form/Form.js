@@ -4,6 +4,7 @@ import Select from '@material-ui/core/Select'
 import InputLabel from '@material-ui/core/InputLabel'
 import FormHelperText from '@material-ui/core/FormHelperText'
 import Button from '@material-ui/core/Button'
+import {CREATED_STATUS} from '../const/httpStatus'
 
 import {saveProduct} from '../services/ProductsService'
 
@@ -32,16 +33,22 @@ const Form = () => {
     validateFields({name: 'type', value: type})
   }
 
+  const getFormValues = (name, size, type) => ({
+    name: name.value,
+    size: size.value,
+    type: type.value
+  })
+
   const handleSubmit = async e => {
     e.preventDefault()
     setIsSaving(true)
     const {name, size, type} = e.target.elements
 
-    validateForm({name: name.value, size: size.value, type: type.value})
+    validateForm(getFormValues(name, size, type))
 
-    const response = await saveProduct()
+    const response = await saveProduct(getFormValues(name, size, type))
     setIsSaving(false)
-    if ( response.status === 201 ) {
+    if ( response.status === CREATED_STATUS ) {
       setIsSuccess(true)
     }
 
@@ -75,7 +82,6 @@ const Form = () => {
         <InputLabel htmlFor="type">Type</InputLabel>
         <Select
           native
-          value=""
           inputProps={
             {id: "type"}
           }
