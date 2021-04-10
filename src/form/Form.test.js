@@ -91,14 +91,23 @@ describe('when the user blurs an empty field', () => {
 
 describe('when the user submits the form', ()=>{
 
-  it('should the submit button be disabled until the response is done', async ()=> {
+  it(
+    'should the submit button be disabled until the response is done',
+    async ()=> {
 
-    expect(screen.getByRole('button', {name: /submit/i})).not.toBeDisabled()
-    fireEvent.click(screen.getByRole('button', {name:/submit/i}))
-    expect(screen.getByRole('button', {name: /submit/i})).toBeDisabled()
+      const SubmitBtn = screen.getByRole('button', {name: /submit/i})
 
-    await waitFor(()=>
-      expect(screen.getByRole('button', {name: /submit/i})).not.toBeDisabled()
-    )
-  })
+      expect(SubmitBtn).not.toBeDisabled()
+      fireEvent.click(screen.getByRole('button', {name:/submit/i}))
+      expect(SubmitBtn).toBeDisabled()
+
+      await waitFor(()=>
+        expect(SubmitBtn).not.toBeDisabled()
+      )
+
+    }
+  )
+
+
+
 })
