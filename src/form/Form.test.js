@@ -138,3 +138,12 @@ describe('when the user submits the form', ()=>{
   )
 
 })
+
+describe('when de user submits the form and server returns an unespected error', ()=>{
+  it('the form page must display the error message "Unexpected error, Try again"', async ()=>{
+    fireEvent.click(screen.getByRole('button', {name:/submit/i}))
+    await waitFor(()=>
+      expect(screen.getByText(/unexpected error, Try again/i)).toBeInTheDocument()
+    )
+  })
+})
