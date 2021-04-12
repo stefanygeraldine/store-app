@@ -2,7 +2,7 @@ import React from 'react'
 import {screen, render, fireEvent, waitFor} from "@testing-library/react"
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
-import {CREATED_STATUS, SERVER_ERROR_STATUS} from '../const/httpStatus'
+import {CREATED_STATUS, SERVER_ERROR_STATUS, INVALID_REQUEST_STATUS} from '../const/httpStatus'
 
 import Form from "./Form";
 
@@ -30,6 +30,9 @@ beforeAll(() => server.listen())
 afterAll(() => server.close())
 
 beforeEach(()=>render(<Form/>))
+
+// Reset any runtime request handlers we may add during the tests.
+afterEach(() => server.resetHandlers())
 
 describe('When the Form is mounted',  ()=> {
   it('should be a create product from page',  ()=> {
@@ -139,11 +142,39 @@ describe('when the user submits the form', ()=>{
 
 })
 
-describe('when de user submits the form and server returns an unespected error', ()=>{
+describe('when de user submits the form and server returns an unexpected error', ()=>{
   it('the form page must display the error message "Unexpected error, Try again"', async ()=>{
     fireEvent.click(screen.getByRole('button', {name:/submit/i}))
     await waitFor(()=>
       expect(screen.getByText(/unexpected error, Try again/i)).toBeInTheDocument()
     )
+  })
+
+})
+
+describe('when de user submits the form and server returns an invalid request error', ()=>{
+  it('the form page must display the error message "The form is invalid, the fields [field1...fieldN] are required"', async () => {
+
+    server.use(
+      rest.post('/products', (req, res, ctx) => {
+        return res(
+          ctx.status(INVALID_REQUEST_STATUS),
+          ctx.json({
+            message:
+              'The form is invalid, the fields name, size, type are required',
+          }),
+        )
+      }),
+    )
+
+     fireEvent.click(screen.getByRole('button', {name: /submit/i}))
+
+     await waitFor(() =>
+       expect(
+         screen.getByText(
+           /the form is invalid, the fields name, size, type are required/i,
+         ),
+       ).toBeInTheDocument(),
+     )
   })
 })
