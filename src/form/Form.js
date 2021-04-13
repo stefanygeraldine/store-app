@@ -1,6 +1,11 @@
 import React, {useState} from 'react'
 import TextField from '@material-ui/core/TextField'
 import Select from '@material-ui/core/Select'
+
+import  Container from '@material-ui/core/Container'
+import  Grid from '@material-ui/core/Grid'
+import  Card from '@material-ui/core/Card'
+import  Typography from '@material-ui/core/Typography'
 import InputLabel from '@material-ui/core/InputLabel'
 import FormHelperText from '@material-ui/core/FormHelperText'
 import Button from '@material-ui/core/Button'
@@ -41,13 +46,20 @@ const Form = () => {
   })
 
   const handleError = async error => {
+
     if ( error.status === SERVER_ERROR_STATUS ) {
       setServerMessage('Unexpected error, Try again')
+      return
     }
+
     if ( error.status === INVALID_REQUEST_STATUS ) {
       const data = await error.json()
       setServerMessage(data.message)
+      return
     }
+
+    setServerMessage('Connection error, please try later')
+
   }
 
   const handleSubmit = async e => {
@@ -56,7 +68,6 @@ const Form = () => {
     const {name, size, type} = e.target.elements
 
     validateForm(getFormValues(name, size, type))
-
     try{
       const response = await saveProduct(getFormValues(name, size, type))
       if(!response.ok){
@@ -81,42 +92,98 @@ const Form = () => {
   }
 
   return (
-    <>
-      <h1>Create Form</h1>
-      <p>{serverMessage}</p>
-      <form onSubmit={handleSubmit} noValidate autoComplete="off">
-        <TextField
-          label="name"
-          id="name"
-          name="name"
-          helperText={formErrors.name}
-          onBlur={handleBlur}
-        />
-        <TextField
-          label="size"
-          id="size"
-          name="size"
-          helperText={formErrors.size}
-          onBlur={handleBlur}
-        />
-        <InputLabel htmlFor="type">Type</InputLabel>
-        <Select
-          native
-          inputProps={
-            {id: "type"}
-          }
-        >
-          <option value="">seleccione</option>
-          <option value="electronic">electronic</option>
-          <option value="furniture">furniture</option>
-          <option value="clothing">clothing</option>
-        </Select>
-        {formErrors.type.length &&
-        <FormHelperText>{formErrors.type}</FormHelperText>
-        }
-        <Button disabled={isSaving} aria-disabled={isSaving} type="submit">Submit</Button>
-      </form>
-    </>
+    <Container maxWidth="sm">
+      <br/>
+      <br/>
+      <Typography
+        component="h1"
+        variant="h5"
+        align="center"
+        style={{
+          color: '#d65382',
+          fontSize: 35,
+        }}
+      >Create Products</Typography>
+      <Typography component="p" variant="body1">{serverMessage}</Typography>
+
+      <br/>
+      <Card
+        style={{
+          padding: 40,
+          backgroundColor: 'rgba(255, 255, 255, 0.45)'
+        }}>
+        <form onSubmit={handleSubmit} noValidate autoComplete="off">
+          <Grid container spacing={4} justify="center" alignItems="center">
+            <Grid item md={6} sm={12} xs={12}>
+              <TextField
+                variant="outlined"
+                style={{width:'100%'}}
+                label="Name"
+                id="name"
+                name="name"
+                helperText={formErrors.name}
+                error={!!formErrors.name.length}
+                onBlur={handleBlur}
+              />
+            </Grid>
+            <Grid item md={6} sm={12} xs={12}>
+              <TextField
+                variant="outlined"
+                style={{width:'100%'}}
+                label="Size"
+                id="size"
+                name="size"
+                helperText={formErrors.size}
+                error={!!formErrors.size.length}
+                onBlur={handleBlur}
+              />
+            </Grid>
+            <Grid item md={12} sm={12} xs={12}>
+              <InputLabel htmlFor="type" style={{
+                marginBottom: 5
+              }}>Type</InputLabel>
+              <Select
+                variant="outlined"
+                error={!!formErrors.type.length}
+                style={{width:'100%'}}
+                native
+                inputProps={
+                  {id: "type"}
+                }
+                onChange={()=>{
+                  setFormErrors((prevProps) => ( {
+                    ...prevProps,
+                    type: ''
+                  } ))
+                }}
+              >
+
+                <option value="">seleccione</option>
+                <option value="electronic">electronic</option>
+                <option value="furniture">furniture</option>
+                <option value="clothing">clothing</option>
+              </Select>
+              {!!formErrors.type.length &&
+              <FormHelperText error={!!formErrors.type.length}>{formErrors.type}</FormHelperText>
+              }
+            </Grid>
+            <Grid item>
+              <Button
+                disabled={isSaving}
+                aria-disabled={isSaving}
+                type="submit"
+                style={{
+                  backgroundColor: '#d65483',
+                  color: '#fff',
+                  width: '120px',
+                }}
+              >Submit</Button>
+            </Grid>
+          </Grid>
+        </form>
+
+      </Card>
+    </Container>
   )
 }
 
