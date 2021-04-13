@@ -36,7 +36,7 @@ afterEach(() => server.resetHandlers())
 
 describe('When the Form is mounted',  ()=> {
   it('should be a create product from page',  ()=> {
-    expect(screen.getByRole('heading', {name: /Create Form/i}).toBeInTheDocument)
+    expect(screen.getByRole('heading', {name: /Create Products/i}).toBeInTheDocument)
   })
 
   it('should exist the fields: name size, type (electronic, furniture, clothing)',  ()=> {
@@ -176,5 +176,23 @@ describe('when de user submits the form and server returns an invalid request er
          ),
        ).toBeInTheDocument(),
      )
+  })
+})
+
+describe('when the user submits the form and the server returns an invalid request error', () => {
+  it('the form page must display the error message "connection error, please try later"', async () => {
+    server.use(
+      rest.post('/products', (req, res) =>
+        res.networkError('Failed to connect'),
+      ),
+    )
+
+    fireEvent.click(screen.getByRole('button', {name: /submit/i}))
+
+    await waitFor(() =>
+      expect(
+        screen.getByText(/connection error, please try later/i),
+      ).toBeInTheDocument(),
+    )
   })
 })
